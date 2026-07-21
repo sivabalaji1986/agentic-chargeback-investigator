@@ -59,6 +59,11 @@ def test_rejects_file_scheme() -> None:
         _valid_evidence_ref(uri="file:///etc/passwd")
 
 
+def test_rejects_path_traversal_within_evidence_scheme() -> None:
+    with pytest.raises(ValidationError, match="path traversal"):
+        _valid_evidence_ref(uri="evidence://case-1/../../../etc/passwd")
+
+
 def test_rejects_blank_evidence_id() -> None:
     with pytest.raises(ValidationError):
         _valid_evidence_ref(evidence_id="   ")

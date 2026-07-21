@@ -59,6 +59,8 @@ class EvidenceRef(ContractModel):
             raise ValueError(
                 f"evidence uri must use one of {ALLOWED_EVIDENCE_URI_SCHEMES}, got: {value!r}"
             )
+        if ".." in value:
+            raise ValueError(f"evidence uri must not contain path traversal segments: {value!r}")
         return value
 
     @field_validator("uploaded_at")
