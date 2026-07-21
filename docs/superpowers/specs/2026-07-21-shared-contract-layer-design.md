@@ -92,9 +92,8 @@ dispute.py        # InvestigationRequest, source channel / dispute type enums
 evidence.py       # EvidenceRef, evidence type enum, URI scheme validation
 findings.py       # SpecialistFinding + Transaction/CustomerHistory/MerchantEvidence payloads
 policy.py         # PolicyInterpretation
-recommendation.py # InvestigationRecommendation, MissingCapabilityWarning
-registry.py       # (module reserved per spec; skill/capability-adjacent registry-facing types)
-agui.py           # AG-UI application event payloads (13 kinds)
+recommendation.py # MissingCapabilityWarning, RecommendationType, InvestigationRecommendation
+agui.py           # AG-UI application event payloads (14 kinds)
 a2ui.py           # A2UI envelope + decision-interface payloads
 decisions.py       # InvestigatorDecision
 mcp.py            # MCP boundary request/response contracts
@@ -103,10 +102,24 @@ records.py        # InvestigationRecord
 
 `common.py` has zero imports from sibling contract modules (it's the leaf);
 every other module may import `common` and `skills`; no module imports
-`registry`/`agui`/`a2ui`/`decisions`/`mcp`/`records` from an earlier-listed
-module, keeping the dependency graph a DAG with no cycles. `__init__.py`
-imports from all modules and re-exports the public surface; nothing in
-`chargeback_contracts` imports from any other application package.
+`agui`/`a2ui`/`decisions`/`mcp`/`records` from an earlier-listed module,
+keeping the dependency graph a DAG with no cycles (`dispute.py` additionally
+imports `evidence.py` for its evidence-reference field; `findings.py`,
+`policy.py`, and `recommendation.py` import `evidence.py`/`skills.py` as
+needed; `agui.py` imports `recommendation.py` for `MissingCapabilityWarning`
+and `RecommendationType`; `a2ui.py` and `decisions.py` import
+`recommendation.py`; `records.py` imports everything below it, being the
+DAG's root). `__init__.py` imports from all modules and re-exports the
+public surface; nothing in `chargeback_contracts` imports from any other
+application package.
+
+`registry.py`, suggested in the spec's file tree, is dropped: none of the
+12 numbered contract sections map to it, and `MissingCapabilityWarning`
+(section 6) is a direct, tightly-coupled dependency of
+`InvestigationRecommendation` (section 7) — the two ship together in
+`recommendation.py` instead of splitting across an import boundary for no
+functional reason. The spec explicitly permits improving the exact file
+split during implementation.
 
 ## Modelling conventions (applied uniformly)
 
@@ -129,6 +142,20 @@ things like "completion timestamp cannot precede start timestamp" and
 `field_validator` for currency codes, positive amounts, non-blank IDs,
 percentage bounds, and evidence URI scheme allowlisting (`evidence://`
 only — any other scheme, including `file://` or a bare path, is rejected).
+
+## MCP read-result scoping decision
+
+Unlike every other section, Prompt 2 gives no example fields for what a
+`get_case` / `get_transaction` read actually returns — no case/transaction
+business schema exists anywhere in the prompt, and inventing one would
+cross into "mock business services," explicitly out of scope. Resolution:
+`get_customer_history` and `get_merchant_evidence`/`list_case_documents`
+reuse the already-defined `CustomerHistoryFindingDetails` and
+`EvidenceRef` shapes (a legitimate, non-invented fit — a specialist finding
+and an MCP read of the same domain data should look the same). `get_case`
+and `get_transaction` stay deliberately minimal (identifiers plus a
+`found: bool`), with a docstring noting the real business record shape is
+owned by the `dispute-mcp-server` prompt, not this one.
 
 ## Test approach
 
