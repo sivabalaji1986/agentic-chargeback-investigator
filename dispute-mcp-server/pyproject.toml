@@ -1,0 +1,13 @@
+[project]
+name = "dispute-mcp-server"
+version = "0.1.0"
+description = "Mock enterprise data exposed through MCP"
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dispute_mcp_server"]
