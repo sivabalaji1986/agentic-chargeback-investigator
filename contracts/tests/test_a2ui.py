@@ -1,10 +1,8 @@
 """Tests for chargeback_contracts.a2ui."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.a2ui import (
     A2UI_VERSION,
     A2uiEnvelope,
@@ -14,6 +12,7 @@ from chargeback_contracts.a2ui import (
     InvestigatorAction,
 )
 from chargeback_contracts.recommendation import RecommendationType
+from pydantic import ValidationError
 
 
 def _valid_envelope(**overrides: object) -> A2uiEnvelope:
@@ -29,7 +28,7 @@ def _valid_envelope(**overrides: object) -> A2uiEnvelope:
             ),
         ),
         "allowed_actions": (InvestigatorAction.APPROVE_RECOMMENDATION,),
-        "generated_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "generated_at": datetime(2026, 1, 1, tzinfo=UTC),
     }
     defaults.update(overrides)
     return A2uiEnvelope(**defaults)  # type: ignore[arg-type]
@@ -59,7 +58,7 @@ def test_discriminated_components_round_trip_for_final_decision_confirmation() -
                 investigation_id="INV-1",
                 decision_id="DEC-1",
                 action=InvestigatorAction.APPROVE_RECOMMENDATION,
-                confirmed_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                confirmed_at=datetime(2026, 1, 1, tzinfo=UTC),
             ),
         )
     )

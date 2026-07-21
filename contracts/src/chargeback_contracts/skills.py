@@ -7,10 +7,10 @@ Policy specialist declaratively — it does not execute orchestration.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class SkillId(str, Enum):
+class SkillId(StrEnum):
     """Stable skill identifiers shared by the Agent Registry, agents, and Orchestrator."""
 
     TRANSACTION_INVESTIGATION = "transaction-investigation"
@@ -20,7 +20,7 @@ class SkillId(str, Enum):
     DUPLICATE_TRANSACTION_INVESTIGATION = "duplicate-transaction-investigation"
 
 
-class DisputeType(str, Enum):
+class DisputeType(StrEnum):
     """Supported initial chargeback dispute classifications."""
 
     GOODS_NOT_RECEIVED = "goods_not_received"

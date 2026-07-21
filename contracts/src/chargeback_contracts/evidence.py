@@ -7,7 +7,7 @@ never carry raw file bytes, and must never expose a local filesystem path.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import Field, field_validator
 
@@ -16,7 +16,7 @@ from chargeback_contracts.common import ContractModel, require_non_blank, requir
 ALLOWED_EVIDENCE_URI_SCHEMES: tuple[str, ...] = ("evidence://",)
 
 
-class EvidenceType(str, Enum):
+class EvidenceType(StrEnum):
     """Supported evidence categories for a chargeback investigation."""
 
     CUSTOMER_DECLARATION = "customer_declaration"

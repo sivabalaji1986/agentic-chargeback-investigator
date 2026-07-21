@@ -16,8 +16,7 @@ def test_skill_id_stable_values() -> None:
     assert SkillId.MERCHANT_EVIDENCE_INVESTIGATION.value == "merchant-evidence-investigation"
     assert SkillId.CHARGEBACK_POLICY_INTERPRETATION.value == "chargeback-policy-interpretation"
     assert (
-        SkillId.DUPLICATE_TRANSACTION_INVESTIGATION.value
-        == "duplicate-transaction-investigation"
+        SkillId.DUPLICATE_TRANSACTION_INVESTIGATION.value == "duplicate-transaction-investigation"
     )
 
 

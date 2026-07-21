@@ -1,13 +1,12 @@
 """Tests for chargeback_contracts.decisions."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.a2ui import InvestigatorAction
 from chargeback_contracts.decisions import InvestigatorDecision
 from chargeback_contracts.recommendation import RecommendationType
+from pydantic import ValidationError
 
 
 def _valid_decision(**overrides: object) -> InvestigatorDecision:
@@ -18,7 +17,7 @@ def _valid_decision(**overrides: object) -> InvestigatorDecision:
         "investigator_id": "inv-jane",
         "selected_action": InvestigatorAction.APPROVE_RECOMMENDATION,
         "recommendation_shown": RecommendationType.ACCEPT_CHARGEBACK,
-        "decided_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "decided_at": datetime(2026, 1, 1, tzinfo=UTC),
     }
     defaults.update(overrides)
     return InvestigatorDecision(**defaults)  # type: ignore[arg-type]

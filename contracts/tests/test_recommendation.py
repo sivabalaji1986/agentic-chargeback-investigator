@@ -1,16 +1,15 @@
 """Tests for chargeback_contracts.recommendation."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.recommendation import (
     InvestigationRecommendation,
     MissingCapabilityWarning,
     RecommendationType,
 )
 from chargeback_contracts.skills import SkillId
+from pydantic import ValidationError
 
 
 def _valid_warning(**overrides: object) -> MissingCapabilityWarning:
@@ -19,7 +18,7 @@ def _valid_warning(**overrides: object) -> MissingCapabilityWarning:
         "message": "Duplicate-transaction specialist is not yet registered.",
         "can_continue_partially": True,
         "affected_area": "duplicate transaction check",
-        "discovered_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "discovered_at": datetime(2026, 1, 1, tzinfo=UTC),
     }
     defaults.update(overrides)
     return MissingCapabilityWarning(**defaults)  # type: ignore[arg-type]
@@ -31,7 +30,7 @@ def _valid_recommendation(**overrides: object) -> InvestigationRecommendation:
         "recommendation": RecommendationType.REQUEST_MORE_EVIDENCE,
         "reason_codes": ("MISSING_DELIVERY_PROOF",),
         "explanation": "Delivery proof has not yet been provided by the merchant.",
-        "generated_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "generated_at": datetime(2026, 1, 1, tzinfo=UTC),
     }
     defaults.update(overrides)
     return InvestigationRecommendation(**defaults)  # type: ignore[arg-type]

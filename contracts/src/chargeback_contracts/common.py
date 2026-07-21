@@ -6,7 +6,7 @@ Leaf module: common.py must never import from any sibling contract module.
 from __future__ import annotations
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict
@@ -35,7 +35,7 @@ def require_utc(value: datetime, *, field_name: str) -> datetime:
     """Require a timezone-aware datetime, normalized to UTC."""
     if value.tzinfo is None:
         raise ValueError(f"{field_name} must be timezone-aware")
-    return value.astimezone(timezone.utc)
+    return value.astimezone(UTC)
 
 
 def require_currency_code(value: str) -> str:

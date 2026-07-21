@@ -1,11 +1,10 @@
 """Tests for chargeback_contracts.evidence."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.evidence import EvidenceRef, EvidenceType
+from pydantic import ValidationError
 
 
 def _valid_evidence_ref(**overrides: object) -> EvidenceRef:
@@ -16,7 +15,7 @@ def _valid_evidence_ref(**overrides: object) -> EvidenceRef:
         "display_name": "receipt.pdf",
         "media_type": "application/pdf",
         "uri": "evidence://case-1/receipt.pdf",
-        "uploaded_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "uploaded_at": datetime(2026, 1, 1, tzinfo=UTC),
         "source": "web_form",
     }
     defaults.update(overrides)

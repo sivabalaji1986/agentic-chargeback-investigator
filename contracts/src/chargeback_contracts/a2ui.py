@@ -8,8 +8,8 @@ A2UI specification/protocol version this project targets is exactly
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
-from typing import Annotated, Literal, Union
+from enum import StrEnum
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator
 
@@ -20,7 +20,7 @@ from chargeback_contracts.recommendation import MissingCapabilityWarning, Recomm
 A2UI_VERSION: Literal["0.9"] = "0.9"
 
 
-class InvestigatorAction(str, Enum):
+class InvestigatorAction(StrEnum):
     """Human decisions available on the investigator decision interface.
 
     These represent human decisions, not autonomous agent actions.
@@ -62,9 +62,7 @@ class SpecialistFindingsSummary(ContractModel):
 
 
 class MissingCapabilityWarningPanel(ContractModel):
-    component_type: Literal["missing_capability_warning_panel"] = (
-        "missing_capability_warning_panel"
-    )
+    component_type: Literal["missing_capability_warning_panel"] = "missing_capability_warning_panel"
     investigation_id: str = Field(min_length=1)
     warnings: tuple[MissingCapabilityWarning, ...] = ()
 
@@ -101,15 +99,13 @@ class FinalDecisionConfirmation(ContractModel):
 
 
 A2uiComponent = Annotated[
-    Union[
-        DecisionCard,
-        EvidenceChecklist,
-        SpecialistFindingsSummary,
-        MissingCapabilityWarningPanel,
-        RecommendedNextActions,
-        ApprovalPreview,
-        FinalDecisionConfirmation,
-    ],
+    DecisionCard
+    | EvidenceChecklist
+    | SpecialistFindingsSummary
+    | MissingCapabilityWarningPanel
+    | RecommendedNextActions
+    | ApprovalPreview
+    | FinalDecisionConfirmation,
     Field(discriminator="component_type"),
 ]
 

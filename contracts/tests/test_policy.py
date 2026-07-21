@@ -1,11 +1,10 @@
 """Tests for chargeback_contracts.policy."""
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.evidence import EvidenceType
 from chargeback_contracts.policy import PolicyInterpretation
 from chargeback_contracts.skills import DisputeType
+from pydantic import ValidationError
 
 
 def _valid_interpretation(**overrides: object) -> PolicyInterpretation:

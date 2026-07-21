@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import Field, field_validator
 
@@ -19,7 +19,7 @@ from chargeback_contracts.evidence import EvidenceRef
 from chargeback_contracts.skills import DisputeType, SkillId
 
 
-class SourceChannel(str, Enum):
+class SourceChannel(StrEnum):
     """Channel through which the customer submitted the dispute."""
 
     EMAIL = "email"

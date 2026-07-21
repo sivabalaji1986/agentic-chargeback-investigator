@@ -1,13 +1,12 @@
 """Tests for chargeback_contracts.dispute."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
-from pydantic import ValidationError
-
 from chargeback_contracts.dispute import InvestigationRequest, SourceChannel
 from chargeback_contracts.skills import DisputeType, SkillId
+from pydantic import ValidationError
 
 
 def _valid_request(**overrides: object) -> InvestigationRequest:
@@ -20,7 +19,7 @@ def _valid_request(**overrides: object) -> InvestigationRequest:
         "dispute_type": DisputeType.GOODS_NOT_RECEIVED,
         "amount": Decimal("99.99"),
         "currency": "USD",
-        "submitted_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+        "submitted_at": datetime(2026, 1, 1, tzinfo=UTC),
         "requested_skill_ids": (SkillId.TRANSACTION_INVESTIGATION,),
     }
     defaults.update(overrides)

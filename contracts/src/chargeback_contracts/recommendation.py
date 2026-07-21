@@ -10,7 +10,7 @@ one another.
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import Field, field_validator
 
@@ -39,7 +39,7 @@ class MissingCapabilityWarning(ContractModel):
         return require_utc(value, field_name="discovered_at")
 
 
-class RecommendationType(str, Enum):
+class RecommendationType(StrEnum):
     """The only supported investigation recommendation outcomes."""
 
     ACCEPT_CHARGEBACK = "accept_chargeback"

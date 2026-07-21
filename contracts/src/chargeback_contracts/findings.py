@@ -9,8 +9,8 @@ from __future__ import annotations
 
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum
-from typing import Annotated, Literal, Union
+from enum import StrEnum
+from typing import Annotated, Literal
 
 from pydantic import Field, field_validator, model_validator
 
@@ -19,7 +19,7 @@ from chargeback_contracts.evidence import EvidenceRef, EvidenceType
 from chargeback_contracts.skills import SkillId
 
 
-class FindingStatus(str, Enum):
+class FindingStatus(StrEnum):
     """Completion state of a specialist's investigation."""
 
     COMPLETED = "completed"
@@ -70,7 +70,7 @@ class MerchantEvidenceFindingDetails(ContractModel):
 
 
 FindingDetails = Annotated[
-    Union[TransactionFindingDetails, CustomerHistoryFindingDetails, MerchantEvidenceFindingDetails],
+    TransactionFindingDetails | CustomerHistoryFindingDetails | MerchantEvidenceFindingDetails,
     Field(discriminator="kind"),
 ]
 
@@ -123,7 +123,7 @@ class SpecialistFinding(ContractModel):
         return value
 
     @model_validator(mode="after")
-    def _validate_status_rules(self) -> "SpecialistFinding":
+    def _validate_status_rules(self) -> SpecialistFinding:
         if self.status == FindingStatus.COMPLETED and self.completed_at is None:
             raise ValueError("completed findings require a completion timestamp")
         if self.status == FindingStatus.PARTIAL and not (self.warnings or self.missing_evidence):

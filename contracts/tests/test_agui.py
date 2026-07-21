@@ -1,6 +1,6 @@
 """Tests for chargeback_contracts.agui."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from chargeback_contracts.agui import (
     ApprovalRequiredEvent,
@@ -26,15 +26,13 @@ _CORRELATION = {
     "investigation_id": "INV-1",
     "case_id": "CASE-1",
     "run_id": "RUN-1",
-    "occurred_at": datetime(2026, 1, 1, tzinfo=timezone.utc),
+    "occurred_at": datetime(2026, 1, 1, tzinfo=UTC),
 }
 
 
 def test_all_fourteen_event_payloads_round_trip_through_json() -> None:
     events = [
-        InvestigationAcceptedEvent(
-            **_CORRELATION, dispute_type=DisputeType.GOODS_NOT_RECEIVED
-        ),
+        InvestigationAcceptedEvent(**_CORRELATION, dispute_type=DisputeType.GOODS_NOT_RECEIVED),
         CapabilityDiscoveryStartedEvent(**_CORRELATION),
         CapabilityDiscoveryCompletedEvent(
             **_CORRELATION, discovered_skill_ids=(SkillId.TRANSACTION_INVESTIGATION,)
@@ -52,7 +50,7 @@ def test_all_fourteen_event_payloads_round_trip_through_json() -> None:
                 message="Not registered yet.",
                 can_continue_partially=True,
                 affected_area="duplicate check",
-                discovered_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                discovered_at=datetime(2026, 1, 1, tzinfo=UTC),
             ),
         ),
         PolicyInterpretationReceivedEvent(**_CORRELATION),
@@ -72,9 +70,7 @@ def test_all_fourteen_event_payloads_round_trip_through_json() -> None:
 
 def test_event_name_is_stable_and_distinct_per_event() -> None:
     names = {
-        InvestigationAcceptedEvent(
-            **_CORRELATION, dispute_type=DisputeType.OTHER
-        ).event_name,
+        InvestigationAcceptedEvent(**_CORRELATION, dispute_type=DisputeType.OTHER).event_name,
         CapabilityDiscoveryStartedEvent(**_CORRELATION).event_name,
         CapabilityDiscoveryCompletedEvent(**_CORRELATION).event_name,
         SpecialistStartedEvent(**_CORRELATION).event_name,
@@ -88,7 +84,7 @@ def test_event_name_is_stable_and_distinct_per_event() -> None:
                 message="Not registered yet.",
                 can_continue_partially=True,
                 affected_area="duplicate check",
-                discovered_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+                discovered_at=datetime(2026, 1, 1, tzinfo=UTC),
             ),
         ).event_name,
         PolicyInterpretationReceivedEvent(**_CORRELATION).event_name,
