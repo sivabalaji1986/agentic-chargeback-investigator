@@ -1,5 +1,11 @@
 # Commit Log
 
+## 2026-07-21 — Add project README
+
+**Files:** `README.md`
+**What:** Added a README with the project title.
+**Why:** Establish a starting point for project documentation.
+
 ## 2026-07-21 — Ignore macOS .DS_Store files
 
 **Files:** `.gitignore`
