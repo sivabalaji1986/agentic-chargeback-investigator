@@ -1,5 +1,11 @@
 # Commit Log
 
+## 2026-07-21 — Fix investigator-ui PostCSS config for Tailwind v4
+
+**Files:** `investigator-ui/postcss.config.js`, `investigator-ui/package.json`, `investigator-ui/package-lock.json`
+**What:** Swapped the PostCSS plugin entry from `tailwindcss` to `@tailwindcss/postcss` (added as a devDependency pinned to `4.3.2`, matching the installed `tailwindcss` version) after `npm run build` failed with "It looks like you're trying to use `tailwindcss` directly as a PostCSS plugin."
+**Why:** Tailwind CSS v4 moved its PostCSS integration into a separate `@tailwindcss/postcss` package; the app shell's `postcss.config.js` still referenced the old v3-style plugin name, which broke the first real `vite build`.
+
 ## 2026-07-21 — Add git-commit skill
 
 **Files:** `.claude/skills/git-commit/SKILL.md`
