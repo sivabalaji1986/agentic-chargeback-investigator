@@ -81,6 +81,16 @@ def test_event_name_is_stable_and_distinct_per_event() -> None:
         SpecialistProgressEvent(**_CORRELATION, message="x").event_name,
         SpecialistFindingReceivedEvent(**_CORRELATION, finding_id="F").event_name,
         MissingEvidenceIdentifiedEvent(**_CORRELATION).event_name,
+        MissingCapabilityIdentifiedEvent(
+            **_CORRELATION,
+            warning=MissingCapabilityWarning(
+                required_skill_id=SkillId.DUPLICATE_TRANSACTION_INVESTIGATION,
+                message="Not registered yet.",
+                can_continue_partially=True,
+                affected_area="duplicate check",
+                discovered_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+            ),
+        ).event_name,
         PolicyInterpretationReceivedEvent(**_CORRELATION).event_name,
         RecommendationProducedEvent(
             **_CORRELATION, recommendation=RecommendationType.REJECT_CHARGEBACK
@@ -90,4 +100,4 @@ def test_event_name_is_stable_and_distinct_per_event() -> None:
         InvestigationCompletedEvent(**_CORRELATION, final_status="completed").event_name,
         InvestigationFailedEvent(**_CORRELATION, reason="x").event_name,
     }
-    assert len(names) == 13  # MissingCapabilityIdentifiedEvent omitted here for brevity; distinct-name check
+    assert len(names) == 14
