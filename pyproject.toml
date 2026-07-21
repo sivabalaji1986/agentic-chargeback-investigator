@@ -43,6 +43,7 @@ strict = true
 warn_unused_ignores = true
 namespace_packages = true
 explicit_package_bases = true
+exclude = ["(^|/)tests/"]
 mypy_path = [
     "orchestrator-agent/src",
     "transaction-agent/src",
@@ -70,3 +71,4 @@ testpaths = [
     "knowledge-ingestor/tests",
 ]
 asyncio_mode = "auto"
+addopts = ["--import-mode=importlib"]
