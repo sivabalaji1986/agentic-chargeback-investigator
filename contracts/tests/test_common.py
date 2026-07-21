@@ -1,6 +1,6 @@
 """Tests for chargeback_contracts.common."""
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
@@ -42,6 +42,14 @@ def test_require_utc_rejects_naive_datetime() -> None:
 def test_require_utc_normalizes_to_utc() -> None:
     aware = datetime(2026, 1, 1, tzinfo=timezone.utc)
     assert require_utc(aware, field_name="submitted_at") == aware
+
+
+def test_require_utc_converts_non_utc_offset_to_utc() -> None:
+    ist = timezone(timedelta(hours=5, minutes=30))
+    non_utc = datetime(2026, 1, 1, tzinfo=ist)
+    normalized = require_utc(non_utc, field_name="submitted_at")
+    assert normalized.tzinfo == timezone.utc
+    assert normalized == datetime(2025, 12, 31, 18, 30, tzinfo=timezone.utc)
 
 
 def test_require_currency_code_rejects_lowercase() -> None:
