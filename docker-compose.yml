@@ -1,0 +1,14 @@
+# Foundation-stage scaffold only.
+#
+# Full service orchestration (agents, agent-registry, dispute-mcp-server,
+# ChromaDB, investigator-ui) is completed in Prompt 12.
+#
+# Ollama is intentionally NOT defined here: it runs natively on the Docker
+# host, not as a container. Services that need it reach it via
+# OLLAMA_BASE_URL (see .env.example), typically
+# http://host.docker.internal:11434.
+#
+# No services are defined yet — adding them prematurely would misrepresent
+# functionality that doesn't exist in this prompt.
+
+services: {}
