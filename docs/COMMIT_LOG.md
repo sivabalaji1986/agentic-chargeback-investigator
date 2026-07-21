@@ -1,5 +1,11 @@
 # Commit Log
 
+## 2026-07-21 — Ignore Node.js build artifacts
+
+**Files:** `.gitignore`
+**What:** Added `node_modules/`, `*.tsbuildinfo`, and the `tsc`-emitted `investigator-ui/vite.config.js` / `investigator-ui/vite.config.d.ts` to `.gitignore`.
+**Why:** Running `npm run build` in `investigator-ui/` for the first time (Task 7) installs `node_modules/` and, because `tsconfig.node.json` is a composite project referenced via `tsc -b`, emits `.tsbuildinfo` cache files and a compiled `vite.config.js`/`.d.ts` alongside the TypeScript source; none of these are meant to be committed.
+
 ## 2026-07-21 — Fix investigator-ui PostCSS config for Tailwind v4
 
 **Files:** `investigator-ui/postcss.config.js`, `investigator-ui/package.json`, `investigator-ui/package-lock.json`
