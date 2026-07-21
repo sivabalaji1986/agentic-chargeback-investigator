@@ -219,6 +219,8 @@ __marimo__/
 
 .DS_Store
 
+tmp
+
 # Node.js
 node_modules/
 *.tsbuildinfo
