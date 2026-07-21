@@ -1,5 +1,11 @@
 # Commit Log
 
+## 2026-07-21 — Add git-commit skill
+
+**Files:** `.claude/skills/git-commit/SKILL.md`
+**What:** Added the git-commit skill, tailored for this Python repo (Python-specific never-stage list, repo name, commit workflow).
+**Why:** Give Claude Code a repo-specific, repeatable procedure for committing changes and logging them in docs/COMMIT_LOG.md.
+
 ## 2026-07-21 — Add use-case tech summary
 
 **Files:** `docs/use-case-tech-summary.md`
