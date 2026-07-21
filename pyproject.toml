@@ -1,0 +1,72 @@
+[project]
+name = "agentic-chargeback-investigator"
+version = "0.1.0"
+description = "AI-assisted credit card chargeback investigation platform (workspace root)"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = [
+    "orchestrator-agent",
+    "transaction-agent",
+    "customer-history-agent",
+    "merchant-evidence-agent",
+    "policy-agent",
+    "duplicate-transaction-agent",
+    "agent-registry",
+    "dispute-mcp-server",
+    "contracts",
+    "knowledge-ingestor",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_ignores = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = [
+    "orchestrator-agent/src",
+    "transaction-agent/src",
+    "customer-history-agent/src",
+    "merchant-evidence-agent/src",
+    "policy-agent/src",
+    "duplicate-transaction-agent/src",
+    "agent-registry/src",
+    "dispute-mcp-server/src",
+    "contracts/src",
+    "knowledge-ingestor/src",
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "orchestrator-agent/tests",
+    "transaction-agent/tests",
+    "customer-history-agent/tests",
+    "merchant-evidence-agent/tests",
+    "policy-agent/tests",
+    "duplicate-transaction-agent/tests",
+    "agent-registry/tests",
+    "dispute-mcp-server/tests",
+    "contracts/tests",
+    "knowledge-ingestor/tests",
+]
+asyncio_mode = "auto"
