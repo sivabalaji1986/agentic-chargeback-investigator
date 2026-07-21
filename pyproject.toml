@@ -43,6 +43,8 @@ strict = true
 warn_unused_ignores = true
 namespace_packages = true
 explicit_package_bases = true
+# Tests excluded: identically-named test_import.py files across packages collide as
+# duplicate module names under mypy's namespace-package resolution; not a coverage gap.
 exclude = ["(^|/)tests/"]
 mypy_path = [
     "orchestrator-agent/src",
