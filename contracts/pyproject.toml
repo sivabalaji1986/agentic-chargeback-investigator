@@ -3,7 +3,11 @@ name = "contracts"
 version = "0.1.0"
 description = "Shared Pydantic models and capability constants"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.13",
+    "a2a-sdk==1.1.1",
+    "ag-ui-protocol==0.1.19",
+]
 
 [build-system]
 requires = ["hatchling"]
