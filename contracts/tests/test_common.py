@@ -21,7 +21,7 @@ class _Example(ContractModel):
 
 def test_contract_model_rejects_unknown_fields() -> None:
     with pytest.raises(ValidationError):
-        _Example(name="ok", extra_field="not allowed")
+        _Example(name="ok", extra_field="not allowed")  # type: ignore[call-arg]
 
 
 def test_require_non_blank_rejects_blank() -> None:

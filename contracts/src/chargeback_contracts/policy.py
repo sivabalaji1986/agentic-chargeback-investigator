@@ -8,7 +8,7 @@ recommendation field, and by running only after the evidence specialists
 
 from __future__ import annotations
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from chargeback_contracts.common import ContractModel, require_non_blank
 from chargeback_contracts.evidence import EvidenceType
@@ -37,12 +37,14 @@ class PolicyInterpretation(ContractModel):
         "investigation_id", "policy_version", "interpretation_summary", "producing_agent_id"
     )
     @classmethod
-    def _non_blank(cls, value: str, info: object) -> str:
-        return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+    def _non_blank(cls, value: str, info: ValidationInfo) -> str:
+        assert info.field_name is not None
+        return require_non_blank(value, field_name=info.field_name)
 
     @field_validator("a2a_task_id", "a2a_context_id")
     @classmethod
-    def _blank_a2a_ids(cls, value: str | None, info: object) -> str | None:
+    def _blank_a2a_ids(cls, value: str | None, info: ValidationInfo) -> str | None:
         if value is not None:
-            return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+            assert info.field_name is not None
+            return require_non_blank(value, field_name=info.field_name)
         return value

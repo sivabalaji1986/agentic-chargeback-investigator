@@ -11,7 +11,7 @@ from datetime import datetime
 from enum import StrEnum
 from typing import Annotated, Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from chargeback_contracts.common import ContractModel, require_non_blank, require_utc
 from chargeback_contracts.evidence import EvidenceRef, EvidenceType
@@ -122,8 +122,9 @@ class A2uiEnvelope(ContractModel):
 
     @field_validator("surface_id", "investigation_id")
     @classmethod
-    def _non_blank(cls, value: str, info: object) -> str:
-        return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+    def _non_blank(cls, value: str, info: ValidationInfo) -> str:
+        assert info.field_name is not None
+        return require_non_blank(value, field_name=info.field_name)
 
     @field_validator("generated_at")
     @classmethod

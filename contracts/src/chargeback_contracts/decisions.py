@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from chargeback_contracts.a2ui import InvestigatorAction
 from chargeback_contracts.common import ContractModel, require_non_blank, require_utc
@@ -32,8 +32,9 @@ class InvestigatorDecision(ContractModel):
 
     @field_validator("decision_id", "investigation_id", "case_id", "investigator_id")
     @classmethod
-    def _non_blank(cls, value: str, info: object) -> str:
-        return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+    def _non_blank(cls, value: str, info: ValidationInfo) -> str:
+        assert info.field_name is not None
+        return require_non_blank(value, field_name=info.field_name)
 
     @field_validator("decided_at")
     @classmethod
@@ -42,7 +43,8 @@ class InvestigatorDecision(ContractModel):
 
     @field_validator("a2a_task_id", "a2a_context_id")
     @classmethod
-    def _blank_a2a_ids(cls, value: str | None, info: object) -> str | None:
+    def _blank_a2a_ids(cls, value: str | None, info: ValidationInfo) -> str | None:
         if value is not None:
-            return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+            assert info.field_name is not None
+            return require_non_blank(value, field_name=info.field_name)
         return value

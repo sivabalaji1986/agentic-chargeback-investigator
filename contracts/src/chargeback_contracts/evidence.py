@@ -9,7 +9,7 @@ from __future__ import annotations
 from datetime import datetime
 from enum import StrEnum
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from chargeback_contracts.common import ContractModel, require_non_blank, require_utc
 
@@ -49,8 +49,9 @@ class EvidenceRef(ContractModel):
 
     @field_validator("evidence_id", "case_id", "display_name", "media_type", "source")
     @classmethod
-    def _non_blank(cls, value: str, info: object) -> str:
-        return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+    def _non_blank(cls, value: str, info: ValidationInfo) -> str:
+        assert info.field_name is not None
+        return require_non_blank(value, field_name=info.field_name)
 
     @field_validator("uri")
     @classmethod

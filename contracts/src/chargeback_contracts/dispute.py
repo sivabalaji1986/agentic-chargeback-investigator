@@ -6,7 +6,7 @@ from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from pydantic import Field, field_validator
+from pydantic import Field, ValidationInfo, field_validator
 
 from chargeback_contracts.common import (
     ContractModel,
@@ -46,8 +46,9 @@ class InvestigationRequest(ContractModel):
 
     @field_validator("investigation_id", "case_id", "transaction_id", "customer_narrative")
     @classmethod
-    def _non_blank(cls, value: str, info: object) -> str:
-        return require_non_blank(value, field_name=info.field_name)  # type: ignore[attr-defined]
+    def _non_blank(cls, value: str, info: ValidationInfo) -> str:
+        assert info.field_name is not None
+        return require_non_blank(value, field_name=info.field_name)
 
     @field_validator("currency")
     @classmethod

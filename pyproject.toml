@@ -43,9 +43,26 @@ strict = true
 warn_unused_ignores = true
 namespace_packages = true
 explicit_package_bases = true
-# Tests excluded: identically-named test_import.py files across packages collide as
-# duplicate module names under mypy's namespace-package resolution; not a coverage gap.
-exclude = ["(^|/)tests/"]
+# Temporary technical debt (introduced in Prompt 1, narrowed in Prompt 2):
+# these 9 packages still have only a single import-smoke `tests/test_import.py`
+# with no `__init__.py`, so mypy's duplicate-module-name detector would
+# otherwise refuse to run (all 9 files share the bare module name
+# `test_import`). `contracts/tests/` is intentionally NOT excluded — it now
+# has real test logic and must be strict-mypy-checked like production code.
+# Remove each package's line below once that package gains real tests (or
+# at minimum a `tests/__init__.py`), one line at a time, rather than in one
+# batch — do not remove this comment until the list is empty.
+exclude = [
+    "^orchestrator-agent/tests/",
+    "^transaction-agent/tests/",
+    "^customer-history-agent/tests/",
+    "^merchant-evidence-agent/tests/",
+    "^policy-agent/tests/",
+    "^duplicate-transaction-agent/tests/",
+    "^agent-registry/tests/",
+    "^dispute-mcp-server/tests/",
+    "^knowledge-ingestor/tests/",
+]
 mypy_path = [
     "orchestrator-agent/src",
     "transaction-agent/src",

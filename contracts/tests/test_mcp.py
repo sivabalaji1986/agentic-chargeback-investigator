@@ -73,7 +73,7 @@ def test_write_response_round_trips_through_json() -> None:
 
 def test_evidence_request_task_rejects_unknown_field() -> None:
     with pytest.raises(ValidationError):
-        CreateEvidenceRequestTaskRequest(
+        CreateEvidenceRequestTaskRequest(  # type: ignore[call-arg]
             case_id="CASE-1",
             idempotency_key="idem-1",
             message_to_customer="Please provide delivery proof.",

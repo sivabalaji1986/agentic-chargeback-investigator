@@ -1,6 +1,7 @@
 """Tests for chargeback_contracts.agui."""
 
 from datetime import UTC, datetime
+from typing import TypedDict
 
 from chargeback_contracts.agui import (
     ApprovalRequiredEvent,
@@ -22,7 +23,15 @@ from chargeback_contracts.evidence import EvidenceType
 from chargeback_contracts.recommendation import MissingCapabilityWarning, RecommendationType
 from chargeback_contracts.skills import DisputeType, SkillId
 
-_CORRELATION = {
+
+class _Correlation(TypedDict):
+    investigation_id: str
+    case_id: str
+    run_id: str
+    occurred_at: datetime
+
+
+_CORRELATION: _Correlation = {
     "investigation_id": "INV-1",
     "case_id": "CASE-1",
     "run_id": "RUN-1",
