@@ -40,10 +40,22 @@ async def test_get_prior_disputes_returns_empty_list_when_none(mcp: FastMCP) -> 
     assert len(result.data) == 0
 
 
+async def test_get_prior_disputes_unknown_customer_raises(mcp: FastMCP) -> None:
+    async with Client(mcp) as client:
+        with pytest.raises(ToolError):
+            await client.call_tool("get_prior_disputes", {"customer_id": "CUST-NOPE"})
+
+
 async def test_get_refund_history_returns_populated_list(mcp: FastMCP) -> None:
     async with Client(mcp) as client:
         result = await client.call_tool("get_refund_history", {"customer_id": "CUST-3001"})
     assert len(result.data) == 1
+
+
+async def test_get_refund_history_returns_empty_list_when_none(mcp: FastMCP) -> None:
+    async with Client(mcp) as client:
+        result = await client.call_tool("get_refund_history", {"customer_id": "CUST-3002"})
+    assert len(result.data) == 0
 
 
 async def test_get_refund_history_unknown_customer_raises(mcp: FastMCP) -> None:

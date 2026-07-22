@@ -15,9 +15,14 @@ from dispute_mcp_server.tools.case_tools import register_case_tools
 
 
 @pytest.fixture
-def mcp() -> FastMCP:
+def repository() -> DisputeRepository:
+    return DisputeRepository()
+
+
+@pytest.fixture
+def mcp(repository: DisputeRepository) -> FastMCP:
     app = FastMCP("test-case-tools")
-    register_case_tools(app, DisputeRepository(), configure_logging("INFO"))
+    register_case_tools(app, repository, configure_logging("INFO"))
     return app
 
 
@@ -96,3 +101,23 @@ async def test_write_audit_unknown_case_returns_failure(mcp: FastMCP) -> None:
             },
         )
     assert response.data.status == McpStatus.FAILURE.value
+
+
+async def test_write_audit_failure_leaves_no_partial_audit_record(
+    mcp: FastMCP, repository: DisputeRepository
+) -> None:
+    # Locks in the atomicity guarantee: append_audit_record checks case
+    # existence before creating any record, so a failed write must leave
+    # the audit log exactly as it was, not with a partial/orphaned entry.
+    async with Client(mcp) as client:
+        await client.call_tool(
+            "write_audit",
+            {
+                "request": CreateAuditEntryRequest(
+                    case_id="CASE-NOPE",
+                    idempotency_key="idem-5",
+                    event_description="should not be recorded",
+                ).model_dump(mode="json")
+            },
+        )
+    assert repository._audit_log == []
