@@ -260,8 +260,7 @@ MERCHANT_EVIDENCE: dict[str, MerchantEvidenceRecord] = {
         merchant_id="MERCH-4002",
         acknowledgement=True,
         evidence_summary=(
-            "Merchant acknowledges the cancellation request but has not yet "
-            "uploaded confirmation."
+            "Merchant acknowledges the cancellation request but has not yet uploaded confirmation."
         ),
         submitted_at=datetime(2026, 6, 6, tzinfo=UTC),
     ),

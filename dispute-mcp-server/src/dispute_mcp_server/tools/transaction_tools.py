@@ -39,9 +39,7 @@ def register_transaction_tools(
         return repository.get_settlement(transaction_id)
 
     @mcp.tool
-    @log_tool_call(
-        logger, "get_refund_or_reversal", id_from=lambda transaction_id: transaction_id
-    )
+    @log_tool_call(logger, "get_refund_or_reversal", id_from=lambda transaction_id: transaction_id)
     def get_refund_or_reversal(transaction_id: str) -> tuple[RefundOrReversalRecord, ...]:
         """Get any refunds or reversals for a transaction (may be empty)."""
         return repository.get_refunds_or_reversals(transaction_id)

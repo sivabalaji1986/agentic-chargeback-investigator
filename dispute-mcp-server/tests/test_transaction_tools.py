@@ -44,18 +44,14 @@ async def test_get_settlement_returns_seeded_record(mcp: FastMCP) -> None:
 
 async def test_get_refund_or_reversal_returns_populated_list(mcp: FastMCP) -> None:
     async with Client(mcp) as client:
-        result = await client.call_tool(
-            "get_refund_or_reversal", {"transaction_id": "TXN-2002"}
-        )
+        result = await client.call_tool("get_refund_or_reversal", {"transaction_id": "TXN-2002"})
     assert len(result.data) == 1
     assert result.data[0].refund_id == "REFUND-7001"
 
 
 async def test_get_refund_or_reversal_returns_empty_list_when_none(mcp: FastMCP) -> None:
     async with Client(mcp) as client:
-        result = await client.call_tool(
-            "get_refund_or_reversal", {"transaction_id": "TXN-2001"}
-        )
+        result = await client.call_tool("get_refund_or_reversal", {"transaction_id": "TXN-2001"})
     assert len(result.data) == 0
 
 

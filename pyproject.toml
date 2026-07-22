@@ -78,7 +78,6 @@ exclude = [
     "^policy-agent/tests/",
     "^duplicate-transaction-agent/tests/",
     "^agent-registry/tests/",
-    "^dispute-mcp-server/tests/",
     "^knowledge-ingestor/tests/",
 ]
 mypy_path = [

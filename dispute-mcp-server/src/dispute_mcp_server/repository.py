@@ -87,9 +87,7 @@ class DisputeRepository:
         except KeyError:
             raise NotFoundError(f"transaction not found: {transaction_id}") from None
 
-    def get_refunds_or_reversals(
-        self, transaction_id: str
-    ) -> tuple[RefundOrReversalRecord, ...]:
+    def get_refunds_or_reversals(self, transaction_id: str) -> tuple[RefundOrReversalRecord, ...]:
         try:
             return seed_data.REFUNDS_OR_REVERSALS[transaction_id]
         except KeyError:
