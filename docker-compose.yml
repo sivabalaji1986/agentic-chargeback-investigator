@@ -1,14 +1,25 @@
-# Foundation-stage scaffold only.
-#
-# Full service orchestration (agents, agent-registry, dispute-mcp-server,
-# ChromaDB, investigator-ui) is completed in Prompt 12.
+# Full service orchestration (agents, agent-registry, ChromaDB,
+# investigator-ui) is completed in Prompt 12. Only dispute-mcp-server is
+# defined here — this prompt's scope.
 #
 # Ollama is intentionally NOT defined here: it runs natively on the Docker
 # host, not as a container. Services that need it reach it via
 # OLLAMA_BASE_URL (see .env.example), typically
 # http://host.docker.internal:11434.
 #
-# No services are defined yet — adding them prematurely would misrepresent
-# functionality that doesn't exist in this prompt.
+# dispute-mcp-server communicates over MCP's stdio transport (confirmed
+# via fastmcp's Client API during design research) rather than an HTTP
+# port, so no port mapping is declared — the prompt that adds the
+# Orchestrator/specialists will define how they invoke this container.
 
-services: {}
+services:
+  dispute-mcp-server:
+    build:
+      context: .
+      dockerfile: dispute-mcp-server/Dockerfile
+    image: agentic-chargeback-investigator/dispute-mcp-server:local
+    environment:
+      MCP_SERVICE_NAME: dispute-mcp-server
+      LOG_LEVEL: INFO
+    stdin_open: true
+    tty: true
