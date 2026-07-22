@@ -1,5 +1,131 @@
 # Commit Log
 
+## 2026-07-22 — Add shared contract layer overview to README
+
+**Files:** `README.md`
+**What:** Added a "Shared contract layer" section describing the now-complete `contracts` package, its dependency direction (every service depends inward on it, it depends on nothing), and where official A2A/AG-UI types come from vs. what's application-owned.
+**Why:** Document the Prompt 2 deliverable so the README stays an accurate map of the repository.
+
+## 2026-07-22 — Wire contracts into orchestrator-agent and transaction-agent
+
+**Files:** `orchestrator-agent/pyproject.toml`, `orchestrator-agent/tests/test_contracts_integration.py`, `transaction-agent/pyproject.toml`, `transaction-agent/tests/test_contracts_integration.py`, `uv.lock`
+**What:** Added `contracts` as a workspace-local dependency (via `[tool.uv.sources] contracts = { workspace = true }`) to both packages, plus one integration test each proving `chargeback_contracts` is consumable from the package root — no business logic added.
+**Why:** Satisfy the requirement that the contract layer be proven usable from at least two dependent packages, not just self-tested in isolation.
+
+## 2026-07-22 — Narrow the mypy tests/ exclusion and strict-check contracts
+
+**Files:** `pyproject.toml`, 8 `contracts/src/chargeback_contracts/*.py` modules, 4 `contracts/tests/*.py` files
+**What:** Replaced Prompt 1's blanket `exclude = ["(^|/)tests/"]` with an explicit list of the 9 packages that still only have trivial import-smoke tests, so `contracts/tests/` is strict-mypy-checked for the first time. Fixed every `field_validator`'s `info: object` parameter to the correct `pydantic.ValidationInfo` type (removing the now-unneeded `# type: ignore` hedges) across 8 modules, added a `TypedDict` for a test fixture, and added 3 narrow `# type: ignore[call-arg]` on tests that intentionally pass an unexpected keyword to prove `extra="forbid"` rejection at runtime.
+**Why:** Prompt 2 introduced real test logic in `contracts/`, so the temporary technical debt from Prompt 1 (documented at the time as removable "once a later prompt adds real tests") could finally be paid down for this package, without touching the other 9 packages, which remain out of scope.
+
+## 2026-07-22 — Expose the contracts public surface from the package root
+
+**Files:** `contracts/src/chargeback_contracts/__init__.py`, `contracts/tests/test_public_surface.py`
+**What:** Re-exported all 12 modules' public types/constants/functions (70 names) from `chargeback_contracts`, and added tests proving every exported name resolves, no official A2A protocol model names (`AgentCard`/`AgentSkill`/`Task`/`Message`/`Artifact`/`Part`/`TaskState`) are duplicated locally, and the full 12-module dependency graph has no circular imports.
+**Why:** Give consuming packages one clean import surface instead of requiring them to know the internal module layout.
+
+## 2026-07-22 — Add investigation record contract with mandatory-approval validation
+
+**Files:** `contracts/src/chargeback_contracts/records.py`, `contracts/tests/test_records.py`
+**What:** Added `InvestigationRecord` (the DAG's root — request, discovered skills, missing-capability warnings, specialist findings, policy interpretation, recommendation, explanation, investigator decision, timestamps, workflow status, audit correlation ID) and `WorkflowStatus`. A `COMPLETED` record cannot validate without an `InvestigatorDecision`; `PARTIAL`/`FAILED` records correctly can. Also added a non-blank validator for `audit_correlation_id`, matching every sibling identifier field elsewhere in the contract layer (a gap in the original plan's sample code, caught during review).
+**Why:** This is the structural enforcement of "human approval is mandatory" for the whole system — a completed investigation literally cannot be represented without a recorded human decision.
+
+## 2026-07-22 — Add MCP boundary request/response contracts
+
+**Files:** `contracts/src/chargeback_contracts/mcp.py`, `contracts/tests/test_mcp.py`
+**What:** Added read-side (`get_case`, `get_transaction`, `get_customer_history`, `get_merchant_evidence`, `list_case_documents`) and write-side (`create_evidence_request_task`, `update_case_status`, `create_audit_entry`) request/response contracts. Every write request requires a non-blank idempotency key. `get_customer_history` reuses `CustomerHistoryFindingDetails`; `get_merchant_evidence`/`list_case_documents` reuse `EvidenceRef` — `get_case`/`get_transaction` stay deliberately minimal since no case/transaction business schema exists yet in this prompt's scope.
+**Why:** Define the MCP-facing boundary shape without implementing MCP tools or inventing a mock business schema ahead of the prompt that will actually build `dispute-mcp-server`.
+
+## 2026-07-22 — Resolve ruff lint findings across contracts
+
+**Files:** 7 `contracts/src/chargeback_contracts/*.py` modules, 10 `contracts/tests/*.py` files
+**What:** Migrated every `str`+`Enum` contract enum to `enum.StrEnum` (ruff's `UP042`, matching the Python-3.13-target modernization rule already selected in the root config), sorted import blocks, preferred `datetime.UTC` over `timezone.utc`, and wrapped two lines that exceeded the 100-column limit.
+**Why:** Findings had quietly accumulated across the first 11 module tasks; paid down in one pass rather than letting it reach Task 18's final verification as a surprise.
+
+## 2026-07-22 — Add investigator decision contract
+
+**Files:** `contracts/src/chargeback_contracts/decisions.py`, `contracts/tests/test_decisions.py`
+**What:** Added `InvestigatorDecision` (decision ID, investigation/case IDs, investigator ID, selected action, optional comments, recommendation shown, decision timestamp, optional A2A IDs) — `investigator_id` and `decided_at` are both required, never optional.
+**Why:** No write-side MCP command may be represented as approved without an `InvestigatorDecision` — this is what makes mandatory human approval explicit rather than a convention.
+
+## 2026-07-22 — Add A2UI decision-interface contracts (version 0.9)
+
+**Files:** `contracts/src/chargeback_contracts/a2ui.py`, `contracts/tests/test_a2ui.py`
+**What:** Added `InvestigatorAction` (approve/reject/request-more-evidence — human decisions only), 7 discriminated decision-interface component models (decision card, evidence checklist, specialist findings summary, missing-capability warning panel, recommended next actions, approval preview, final decision confirmation), and `A2uiEnvelope` with `version: Literal["0.9"]`.
+**Why:** No official A2UI SDK exists; every payload the investigator decision surface will need is defined here, targeting spec version 0.9 exactly.
+
+## 2026-07-22 — Add AG-UI application event payload contracts
+
+**Files:** `contracts/src/chargeback_contracts/agui.py`, `contracts/tests/test_agui.py`
+**What:** Added 14 typed event payloads (investigation accepted; capability discovery started/completed; specialist started/progress/finding-received; missing evidence/capability identified; policy interpretation received; recommendation/explanation produced; approval required; investigation completed/failed), each with a stable `event_name` and shared correlation fields. Strengthened the event-name distinctness test to cover all 14 events (it originally checked only 13).
+**Why:** These are the typed `value` payloads for `ag_ui.core.CustomEvent`, defined without building the streaming server itself.
+
+## 2026-07-22 — Add missing-capability and deterministic recommendation contracts
+
+**Files:** `contracts/src/chargeback_contracts/recommendation.py`, `contracts/tests/test_recommendation.py`
+**What:** Added `MissingCapabilityWarning` (explicit, typed — never a generic exception) and `InvestigationRecommendation` (`RecommendationType` — accept/reject/request-more-evidence — plus deterministic reason codes, supporting finding IDs, missing evidence, warnings, policy references, and an independent `explanation` field). Rewrote the independence test to use real constructor calls in both directions instead of `model_copy` (which bypasses validators and would have passed even if the fields were secretly coupled).
+**Why:** This is the architectural core of "recommendation is deterministic, explanation is descriptive and may later be LLM-generated" — the two must never be coupled.
+
+## 2026-07-22 — Add policy interpretation contract
+
+**Files:** `contracts/src/chargeback_contracts/policy.py`, `contracts/tests/test_policy.py`
+**What:** Added `PolicyInterpretation` (policy version, cited sections, applicable rules, required/satisfied/missing evidence, exceptions/escalations, interpretation summary, source references, producing agent ID). No recommendation field.
+**Why:** The Policy Agent interprets policy but never decides the final recommendation — enforced by the model simply having no such field.
+
+## 2026-07-22 — Add specialist finding contracts with discriminated detail payloads
+
+**Files:** `contracts/src/chargeback_contracts/findings.py`, `contracts/tests/test_findings.py`
+**What:** Added `SpecialistFinding` (common envelope: status, summary, evidence used/missing, warnings, timestamps) with a `details` field discriminated over `TransactionFindingDetails`, `CustomerHistoryFindingDetails`, and `MerchantEvidenceFindingDetails`. Cross-field validation: completed status requires a completion timestamp, partial status requires warnings or missing evidence, completion cannot precede start. No recommendation field.
+**Why:** Specialists investigate and report facts; they must never return the final Accept/Reject/Request More Evidence recommendation.
+
+## 2026-07-22 — Add dispute intake contracts (InvestigationRequest, SourceChannel)
+
+**Files:** `contracts/src/chargeback_contracts/dispute.py`, `contracts/tests/test_dispute.py`
+**What:** Added `InvestigationRequest` (IDs, source channel, customer narrative, dispute type, amount/currency, submitted timestamp, evidence references, requested skills, optional A2A context ID) and `SourceChannel` (email/contact_centre/web_form/chatbot).
+**Why:** The intake payload that starts every investigation, with monetary/timestamp/currency validation reused from `common.py`.
+
+## 2026-07-22 — Add evidence reference contracts with URI scheme validation
+
+**Files:** `contracts/src/chargeback_contracts/evidence.py`, `contracts/tests/test_evidence.py`
+**What:** Added `EvidenceRef` (never raw file bytes — a secure `evidence://` URI pointer only) and `EvidenceType` (12 categories). The URI validator rejects any scheme other than `evidence://`, including bare local paths and `file://`; a follow-up fix rejects `..` path-traversal segments within an otherwise-valid `evidence://` URI, closing a gap a future evidence-store resolver could otherwise be tricked by.
+**Why:** Evidence references must never expose a local filesystem path or allow reading outside an intended directory.
+
+## 2026-07-22 — Add skill IDs, dispute types, and dispute-to-skill mapping
+
+**Files:** `contracts/src/chargeback_contracts/skills.py`, `contracts/tests/test_skills.py`
+**What:** Added `SkillId` (5 stable skill identifiers), `DisputeType` (6 dispute classifications), and `required_skills_for()`, which returns the deterministic skills a dispute type needs, always appending the Policy skill last (it runs only after the evidence specialists report).
+**Why:** Declares the specialist-ordering dependency without executing any orchestration.
+
+## 2026-07-22 — Add contracts common primitives (ContractModel, validators)
+
+**Files:** `contracts/src/chargeback_contracts/common.py`, `contracts/tests/test_common.py`
+**What:** Added `ContractModel` (the shared Pydantic v2 base, `extra="forbid"`) and reusable validators (`require_non_blank`, `require_utc`, `require_currency_code`, `require_positive_amount`, `require_percentage`) used by every other contract module. Strengthened the UTC-normalization test to actually exercise a non-UTC offset being converted, rather than only round-tripping an already-UTC value.
+**Why:** The DAG's leaf module — every later module builds on these primitives rather than reimplementing validation logic.
+
+## 2026-07-22 — Add contracts package runtime dependencies
+
+**Files:** `contracts/pyproject.toml`, `uv.lock`
+**What:** Added `pydantic>=2.13`, `a2a-sdk==1.1.1`, and `ag-ui-protocol==0.1.19` to the `contracts` package (the only package to gain these dependencies in this prompt).
+**Why:** These are the exact versions the contract layer is built against, confirmed to exist on the live registry before use.
+
+## 2026-07-22 — Add shared contract layer implementation plan
+
+**Files:** `docs/superpowers/plans/2026-07-21-shared-contract-layer.md`
+**What:** Task-by-task plan (19 tasks) to implement Prompt 2's contract layer via subagent-driven-development.
+**Why:** Break the large contract-layer build into reviewable, independently-testable units before implementation began.
+
+## 2026-07-22 — Refine shared contract layer design (drop registry.py, scope mcp.py)
+
+**Files:** `docs/superpowers/specs/2026-07-21-shared-contract-layer-design.md`
+**What:** Merged `MissingCapabilityWarning` into `recommendation.py` instead of shipping an otherwise-empty `registry.py` (no prompt section mapped to it), and documented the MCP read-result scoping decision (reuse existing finding/evidence shapes where they fit; stay minimal where no business schema exists yet).
+**Why:** Lock in file-split refinements discovered while fleshing out the plan, before writing any code.
+
+## 2026-07-22 — Add shared contract layer design spec
+
+**Files:** `docs/superpowers/specs/2026-07-21-shared-contract-layer-design.md`
+**What:** Recorded real `a2a-sdk` 1.1.1 / `ag-ui-protocol` 0.1.19 API research (both inspected directly rather than guessed) and the execution decisions confirmed with the user ahead of implementation: A2A identifiers carried as validated ID-reference-only fields (never wrapping the SDK's protobuf types), a narrowed mypy `tests/` exclusion documented as temporary technical debt, and a two-package `contracts` dependency wiring plan.
+**Why:** Prompt 2 explicitly required inspecting the installed SDK shapes rather than guessing; this is where those findings and the resulting design decisions were captured before planning.
+
 ## 2026-07-21 — Write full foundation README
 
 **Files:** `README.md`
