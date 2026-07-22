@@ -3,10 +3,19 @@ name = "transaction-agent"
 version = "0.1.0"
 description = "Transaction-domain investigation"
 requires-python = ">=3.13"
-dependencies = ["contracts"]
+dependencies = [
+    "fastapi==0.139.2",
+    "uvicorn[standard]==0.51.0",
+    "httpx==0.28.1",
+    "ag-ui-protocol==0.1.19",
+    "fastmcp==3.4.4",
+    "contracts",
+    "dispute-mcp-server",
+]
 
 [tool.uv.sources]
 contracts = { workspace = true }
+dispute-mcp-server = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
