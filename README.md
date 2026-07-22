@@ -114,6 +114,38 @@ this prompt.
 
 Run it locally with `make mcp-run`; test it with `make mcp-test`.
 
+## Vertical Slice (End-to-End Spike)
+
+The first end-to-end path proving the architecture:
+
+```text
+Intake harness (temporary)
+        v
+Transaction Agent (FastAPI, reusable)
+        v
+dispute-mcp-server (in-process fastmcp.Client)
+        v
+AG-UI event stream (ag-ui-protocol 0.1.19)
+        v
+investigator-ui (@ag-ui/client 0.0.57)
+        v
+A2UI v0.9 decision card
+        v
+Investigator action -> backend
+```
+
+`transaction-agent` exposes three endpoints:
+
+- `POST /intake` — **temporary**: seeds a run for the existing seeded `CASE-1001`, standing in for the Orchestrator that replaces it in a later prompt.
+- `POST /agent/run` — **reusable**: the real AG-UI wire-protocol endpoint (`RunAgentInput` in, SSE-encoded events out).
+- `POST /actions/decision` — **reusable**: logs an investigator's Approve / Reject / Request More Evidence decision.
+
+The recommendation returned is a **fixed mock value** (`request_more_evidence`) — deterministic recommendation logic is Prompt 9's job. The one real LLM call (host Ollama, `qwen3.5:latest`, `think=false`) generates only the explanation text shown on the decision card; this was validated directly against the live Ollama instance (no `<think>` leakage, reliably structured JSON, reachable from a container via `host.docker.internal`).
+
+All 5 streamed milestones (Investigation Started, MCP Lookup, Transaction Loaded, Recommendation Ready, Investigation Completed) reuse **existing** `chargeback_contracts.agui` event payloads from Prompt 2 — no new shared contracts were needed.
+
+`investigator-ui` gained four reusable components: `InvestigationTimeline`, `EventStream`, `RecommendationCard`, `DecisionCard` — a later prompt extends these rather than replacing them.
+
 ## Prerequisites
 
 - Python 3.13
