@@ -3,6 +3,8 @@
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.a2ui import (
     A2UI_VERSION,
     A2uiEnvelope,
@@ -12,7 +14,6 @@ from chargeback_contracts.a2ui import (
     InvestigatorAction,
 )
 from chargeback_contracts.recommendation import RecommendationType
-from pydantic import ValidationError
 
 
 def _valid_envelope(**overrides: object) -> A2uiEnvelope:

@@ -13,8 +13,9 @@ from __future__ import annotations
 from datetime import datetime
 from decimal import Decimal
 
-from chargeback_contracts.skills import DisputeType
 from pydantic import BaseModel, ConfigDict, Field
+
+from chargeback_contracts.skills import DisputeType
 
 
 class DisputeMcpModel(BaseModel):

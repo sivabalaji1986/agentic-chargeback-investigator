@@ -4,13 +4,14 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.a2ui import InvestigatorAction
 from chargeback_contracts.decisions import InvestigatorDecision
 from chargeback_contracts.dispute import InvestigationRequest, SourceChannel
 from chargeback_contracts.recommendation import RecommendationType
 from chargeback_contracts.records import InvestigationRecord, WorkflowStatus
 from chargeback_contracts.skills import DisputeType
-from pydantic import ValidationError
 
 
 def _base_request() -> InvestigationRequest:

@@ -16,6 +16,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from a2a.types import Message, Role, Task
+
 from chargeback_contracts.a2ui import InvestigatorAction
 from chargeback_contracts.decisions import InvestigatorDecision
 from chargeback_contracts.findings import (

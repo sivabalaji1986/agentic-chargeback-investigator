@@ -3,6 +3,8 @@
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.findings import (
     CustomerHistoryFindingDetails,
     FindingStatus,
@@ -11,7 +13,6 @@ from chargeback_contracts.findings import (
     TransactionFindingDetails,
 )
 from chargeback_contracts.skills import SkillId
-from pydantic import ValidationError
 
 
 def _completed_finding(**overrides: object) -> SpecialistFinding:

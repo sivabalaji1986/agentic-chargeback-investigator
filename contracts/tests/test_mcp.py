@@ -3,6 +3,8 @@
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.a2ui import InvestigatorAction
 from chargeback_contracts.decisions import InvestigatorDecision
 from chargeback_contracts.findings import CustomerHistoryFindingDetails
@@ -16,7 +18,6 @@ from chargeback_contracts.mcp import (
     UpdateCaseStatusRequest,
 )
 from chargeback_contracts.recommendation import RecommendationType
-from pydantic import ValidationError
 
 
 def test_get_case_response_round_trips_through_json() -> None:

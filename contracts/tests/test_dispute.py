@@ -4,9 +4,10 @@ from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.dispute import InvestigationRequest, SourceChannel
 from chargeback_contracts.skills import DisputeType, SkillId
-from pydantic import ValidationError
 
 
 def _valid_request(**overrides: object) -> InvestigationRequest:

@@ -4,6 +4,8 @@ from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.common import (
     ContractModel,
     require_currency_code,
@@ -12,7 +14,6 @@ from chargeback_contracts.common import (
     require_positive_amount,
     require_utc,
 )
-from pydantic import ValidationError
 
 
 class _Example(ContractModel):

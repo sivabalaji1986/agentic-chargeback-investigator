@@ -3,13 +3,14 @@
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
+
 from chargeback_contracts.recommendation import (
     InvestigationRecommendation,
     MissingCapabilityWarning,
     RecommendationType,
 )
 from chargeback_contracts.skills import SkillId
-from pydantic import ValidationError
 
 
 def _valid_warning(**overrides: object) -> MissingCapabilityWarning:

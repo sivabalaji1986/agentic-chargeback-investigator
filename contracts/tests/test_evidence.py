@@ -3,8 +3,9 @@
 from datetime import UTC, datetime
 
 import pytest
-from chargeback_contracts.evidence import EvidenceRef, EvidenceType
 from pydantic import ValidationError
+
+from chargeback_contracts.evidence import EvidenceRef, EvidenceType
 
 
 def _valid_evidence_ref(**overrides: object) -> EvidenceRef:

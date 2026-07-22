@@ -37,6 +37,24 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
 
+[tool.ruff.lint.isort]
+# Without this, ruff's isort rule treats every workspace package as
+# third-party (no package on PyPI is named these), merging its imports
+# alphabetically with real third-party ones like pydantic instead of
+# sorting them into their own first-party group.
+known-first-party = [
+    "chargeback_contracts",
+    "orchestrator_agent",
+    "transaction_agent",
+    "customer_history_agent",
+    "merchant_evidence_agent",
+    "policy_agent",
+    "duplicate_transaction_agent",
+    "agent_registry",
+    "dispute_mcp_server",
+    "knowledge_ingestor",
+]
+
 [tool.mypy]
 python_version = "3.13"
 strict = true
