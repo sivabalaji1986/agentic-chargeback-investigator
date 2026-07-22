@@ -3,7 +3,15 @@ name = "agent-registry"
 version = "0.1.0"
 description = "Lease-based agent and capability discovery"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi==0.139.2",
+    "uvicorn[standard]==0.51.0",
+    "httpx==0.28.1",
+    "contracts",
+]
+
+[tool.uv.sources]
+contracts = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]

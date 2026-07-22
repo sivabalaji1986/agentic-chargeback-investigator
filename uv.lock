@@ -56,6 +56,20 @@ wheels = [
 name = "agent-registry"
 version = "0.1.0"
 source = { editable = "agent-registry" }
+dependencies = [
+    { name = "contracts" },
+    { name = "fastapi" },
+    { name = "httpx" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "contracts", editable = "contracts" },
+    { name = "fastapi", specifier = "==0.139.2" },
+    { name = "httpx", specifier = "==0.28.1" },
+    { name = "uvicorn", extras = ["standard"], specifier = "==0.51.0" },
+]
 
 [[package]]
 name = "agentic-chargeback-investigator"

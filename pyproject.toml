@@ -61,10 +61,10 @@ strict = true
 warn_unused_ignores = true
 namespace_packages = true
 explicit_package_bases = true
-# Temporary technical debt (introduced in Prompt 1, narrowed in Prompt 2):
-# these 9 packages still have only a single import-smoke `tests/test_import.py`
+# Temporary technical debt (introduced in Prompt 1, narrowed in Prompts 2, 4, 5):
+# these 6 packages still have only a single import-smoke `tests/test_import.py`
 # with no `__init__.py`, so mypy's duplicate-module-name detector would
-# otherwise refuse to run (all 9 files share the bare module name
+# otherwise refuse to run (all 6 files share the bare module name
 # `test_import`). `contracts/tests/` is intentionally NOT excluded — it now
 # has real test logic and must be strict-mypy-checked like production code.
 # Remove each package's line below once that package gains real tests (or
@@ -76,7 +76,6 @@ exclude = [
     "^merchant-evidence-agent/tests/",
     "^policy-agent/tests/",
     "^duplicate-transaction-agent/tests/",
-    "^agent-registry/tests/",
     "^knowledge-ingestor/tests/",
 ]
 mypy_path = [
