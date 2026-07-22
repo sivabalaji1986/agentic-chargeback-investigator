@@ -151,7 +151,7 @@ All 5 streamed milestones (Investigation Started, MCP Lookup, Transaction Loaded
 - Python 3.13
 - [`uv`](https://docs.astral.sh/uv/)
 - Node.js 22 and npm
-- [Ollama](https://ollama.com), running natively on the host (not in Docker) with the `qwen3.5:9b` and `nomic-embed-text` models pulled
+- [Ollama](https://ollama.com), running natively on the host (not in Docker) with the `qwen3.5:latest` and `nomic-embed-text` models pulled
 
 ## Initial setup
 
