@@ -146,6 +146,38 @@ All 5 streamed milestones (Investigation Started, MCP Lookup, Transaction Loaded
 
 `investigator-ui` gained four reusable components: `InvestigationTimeline`, `EventStream`, `RecommendationCard`, `DecisionCard` — a later prompt extends these rather than replacing them.
 
+## Agent Registry
+
+`agent-registry` is a standalone FastAPI service providing lease-based
+runtime capability discovery. No database — state lives only in an
+in-memory repository for the life of the process.
+
+- `POST /agents` — register or re-register (idempotent upsert by
+  `agent_id`; `201` when new, `200` when refreshing an existing lease).
+- `POST /agents/{agent_id}/renew` — renew an active lease; `404` if the
+  agent is unknown or already expired.
+- `DELETE /agents/{agent_id}` — deregister; `404` if unknown.
+- `GET /agents` — list all currently active agents.
+- `GET /agents/capabilities` — list the distinct capabilities currently
+  advertised by at least one active agent.
+- `GET /agents/discover?capability=...` — find active agents advertising
+  a given capability (reuses `chargeback_contracts.skills.SkillId` — this
+  package defines no capability constants of its own); an unmatched or
+  unknown capability returns an empty list, not an error.
+- `GET /health` — `{"status": "ok", "agent_count": <int>}`.
+
+A lease expires automatically if not renewed; a background task sweeps
+expired leases on a configurable interval (`LEASE_SWEEP_INTERVAL_SECONDS`,
+default 10s), removing them entirely so the same `agent_id` can freely
+re-register afterward. Lease-expiry logic is tested deterministically via
+an injectable `Clock` (`FakeClock`), never real sleeping.
+
+This service is not yet wired into `transaction-agent` or any other
+service — that integration is deferred to a later prompt. No Orchestrator,
+A2A routing, or additional specialist agents are implemented here.
+
+Run it locally with `make registry-run`; test it with `make registry-test`.
+
 ## Prerequisites
 
 - Python 3.13
