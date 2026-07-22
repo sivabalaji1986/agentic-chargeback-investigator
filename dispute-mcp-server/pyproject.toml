@@ -3,7 +3,14 @@ name = "dispute-mcp-server"
 version = "0.1.0"
 description = "Mock enterprise data exposed through MCP"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastmcp==3.4.4",
+    "pydantic>=2.13",
+    "contracts",
+]
+
+[tool.uv.sources]
+contracts = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
