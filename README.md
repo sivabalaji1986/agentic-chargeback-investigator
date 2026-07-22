@@ -56,6 +56,41 @@ agentic-chargeback-investigator
 | `investigator-ui` | React UI using AG-UI and A2UI |
 | `docs` | Canonical design documentation |
 
+## Shared contract layer
+
+Every stable payload that crosses a service boundary — A2A (Orchestrator ↔
+specialists), Agent Registry ↔ agents, AG-UI (Orchestrator ↔ UI), A2UI
+(Orchestrator ↔ investigator decision surface), MCP-facing adapters, and
+audit persistence — is defined once in `contracts` (import name
+`chargeback_contracts`). All application services depend inward on it; it
+depends on nothing in this repository.
+
+```text
+orchestrator-agent  transaction-agent  customer-history-agent  ...
+        \                  |                    /
+         \                 |                   /
+          \                |                  /
+           v                v                v
+                    chargeback_contracts
+```
+
+Key points:
+
+- Official A2A protocol objects (`Task`, `Message`, `AgentSkill`, ...) come
+  from `a2a.types` (`a2a-sdk`) — this repository never redefines them; it
+  only carries their string `task_id` / `context_id` identifiers.
+- Official AG-UI event types come from `ag_ui.core` (`ag-ui-protocol`);
+  `chargeback_contracts` defines only the typed application payloads
+  carried inside a `CustomEvent`.
+- A2UI has no official SDK; every A2UI payload here is application-owned,
+  targeting specification version `0.9`.
+- Specialists (`SpecialistFinding`) and the Policy Agent
+  (`PolicyInterpretation`) never carry a recommendation — only
+  `InvestigationRecommendation` does, and it is always deterministic;
+  `explanation` is independent, descriptive text.
+- Human approval is mandatory: a `WorkflowStatus.COMPLETED`
+  `InvestigationRecord` cannot validate without an `InvestigatorDecision`.
+
 ## Prerequisites
 
 - Python 3.13
