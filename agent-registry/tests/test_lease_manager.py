@@ -2,7 +2,7 @@
 
 These use a tiny real sweep_interval_seconds (not a FakeClock) because
 this module's job is the scheduling loop itself, not expiry correctness
-(fully covered, deterministically, in test_service.py). Kept fast with
+(fully covered, deterministically, in test_registry_service.py). Kept fast with
 sub-50ms real sleeps.
 """
 
