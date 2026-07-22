@@ -91,6 +91,29 @@ Key points:
 - Human approval is mandatory: a `WorkflowStatus.COMPLETED`
   `InvestigationRecord` cannot validate without an `InvestigatorDecision`.
 
+## Dispute MCP Server
+
+`dispute-mcp-server` is a single FastMCP server exposing mocked enterprise
+data through four tool groups — case, transaction, customer, merchant (13
+tools total). All responses come from deterministic, cross-referenced
+seed data (`seed_data.py`); there are no live integrations and no business
+decisions made here.
+
+Tool groups:
+
+- **Case**: `get_case`, `update_case`, `write_audit`
+- **Transaction**: `get_transaction`, `get_authorization`, `get_settlement`, `get_refund_or_reversal`
+- **Customer**: `get_customer_profile`, `get_prior_disputes`, `get_refund_history`
+- **Merchant**: `get_merchant_evidence`, `get_delivery_details`, `get_cancellation_details`
+
+`update_case` and `write_audit` reuse the shared `chargeback_contracts.mcp`
+write-side envelope contracts (idempotency key required, structured
+success/failure response); every other tool returns a package-owned
+response model, since the underlying business schema didn't exist before
+this prompt.
+
+Run it locally with `make mcp-run`; test it with `make mcp-test`.
+
 ## Prerequisites
 
 - Python 3.13
