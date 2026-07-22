@@ -49,6 +49,7 @@ async def _lookup_or_404(case_id: str) -> tuple[dict[str, object], dict[str, obj
 
 def create_app(*, explanation_client: ExplanationClient | None = None) -> FastAPI:
     settings = load_settings()
+    logging.basicConfig(level=settings.log_level)
     if explanation_client is None:
         explanation_client = OllamaExplanationClient(
             base_url=settings.ollama_base_url, model=settings.ollama_text_model
