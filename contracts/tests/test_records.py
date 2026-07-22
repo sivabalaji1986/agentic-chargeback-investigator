@@ -96,6 +96,16 @@ def test_completed_at_cannot_precede_created_at() -> None:
         )
 
 
+def test_rejects_blank_audit_correlation_id() -> None:
+    with pytest.raises(ValidationError, match="must not be blank"):
+        InvestigationRecord(
+            request=_base_request(),
+            created_at=datetime(2026, 1, 1, tzinfo=UTC),
+            status=WorkflowStatus.IN_PROGRESS,
+            audit_correlation_id="   ",
+        )
+
+
 def test_rejects_unknown_field() -> None:
     with pytest.raises(ValidationError):
         InvestigationRecord(

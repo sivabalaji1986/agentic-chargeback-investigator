@@ -13,7 +13,7 @@ from enum import StrEnum
 
 from pydantic import Field, field_validator, model_validator
 
-from chargeback_contracts.common import ContractModel, require_utc
+from chargeback_contracts.common import ContractModel, require_non_blank, require_utc
 from chargeback_contracts.decisions import InvestigatorDecision
 from chargeback_contracts.dispute import InvestigationRequest
 from chargeback_contracts.findings import SpecialistFinding
@@ -56,6 +56,11 @@ class InvestigationRecord(ContractModel):
     completed_at: datetime | None = None
     status: WorkflowStatus
     audit_correlation_id: str = Field(min_length=1)
+
+    @field_validator("audit_correlation_id")
+    @classmethod
+    def _audit_correlation_id(cls, value: str) -> str:
+        return require_non_blank(value, field_name="audit_correlation_id")
 
     @field_validator("created_at")
     @classmethod
