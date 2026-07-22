@@ -1,5 +1,113 @@
 # Commit Log
 
+## 2026-07-22 — Add Dispute MCP Server section to README
+
+**Files:** `README.md`
+**What:** Added a section describing the 4 tool groups (13 tools total), the write-tool contract reuse, and how to run/test the server locally.
+**Why:** Document the Prompt 3 deliverable so the README stays an accurate map of the repository.
+
+## 2026-07-22 — Add mcp-test and mcp-run Makefile targets
+
+**Files:** `Makefile`
+**What:** Added `make mcp-test` (runs the dispute-mcp-server test suite) and `make mcp-run` (runs the server locally).
+**Why:** Match the developer-command conventions already established for the rest of the workspace.
+
+## 2026-07-22 — Add runnable dispute-mcp-server Docker Compose service
+
+**Files:** `docker-compose.yml`, `dispute-mcp-server/Dockerfile`
+**What:** Replaced the comments-only Prompt-1 scaffold with a real, single-service Compose definition (no port mapping — the server communicates over MCP's stdio transport, not HTTP) and a `uv`-based Dockerfile. Verified with a real `docker compose build`, which succeeded in this environment (image `agentic-chargeback-investigator/dispute-mcp-server:local`, confirmed via `docker images`), plus an in-container import smoke test.
+**Why:** Prompt 3 explicitly required a runnable service, not just valid-looking YAML; this environment had a working Docker daemon, so the build was actually exercised rather than only statically validated.
+
+## 2026-07-22 — Remove dispute-mcp-server Prompt-1 smoke test; strict-check it in mypy
+
+**Files:** `pyproject.toml`, `dispute-mcp-server/tests/test_import.py` (deleted), 4 dispute-mcp-server files reformatted
+**What:** Deleted the superseded import-smoke test and removed `dispute-mcp-server` from the root mypy `[tool.mypy] exclude` list (9 → 8 packages), so the whole package is now strict-mypy-checked like `contracts`. Bundled a mechanical `ruff format` fix for 4 files that had accumulated whitespace/line-wrap drift across earlier tasks (verified whitespace-only, no logic change).
+**Why:** This package now has 38 real tests (Tasks 3-10) — the Prompt-1-era exclusion and smoke test are no longer needed.
+
+## 2026-07-22 — Wire main.py entrypoint and add server startup/discovery tests
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/main.py`, `dispute-mcp-server/tests/test_server_startup.py`
+**What:** `create_app()` builds the `FastMCP` instance, a fresh `DisputeRepository`, and registers all 4 tool groups; a module-level `mcp = create_app()` is exposed for Docker/Makefile use. Tests confirm all 13 tools are discoverable via `Client.list_tools()` and that creating the app twice doesn't error (no shared state between instances).
+**Why:** This is the point where all 13 previously-unwired tools become one working server.
+
+## 2026-07-22 — Add merchant tool group
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/tools/merchant_tools.py`, `dispute-mcp-server/tests/test_merchant_tools.py`
+**What:** Added `get_merchant_evidence`, `get_delivery_details`, `get_cancellation_details` — all three propagate `NotFoundError` for an unknown case_id.
+**Why:** Completes the 4th and final MCP tool group.
+
+## 2026-07-22 — Add customer tool group
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/tools/customer_tools.py`, `dispute-mcp-server/tests/test_customer_tools.py`
+**What:** Added `get_customer_profile`, `get_prior_disputes`, `get_refund_history`. The latter two correctly distinguish an unknown customer_id (raises) from a known customer with no history (returns an empty tuple) — verified against seed data (`CUST-3002` has no prior disputes or refund history).
+**Why:** Exposes customer-history data for the future customer-history specialist agent.
+
+## 2026-07-22 — Add transaction tool group
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/tools/transaction_tools.py`, `dispute-mcp-server/tests/test_transaction_tools.py`
+**What:** Added `get_transaction`, `get_authorization`, `get_settlement`, `get_refund_or_reversal` — all read-only, all propagate `NotFoundError` for an unknown transaction_id.
+**Why:** Exposes transaction-domain data for the future transaction specialist agent.
+
+## 2026-07-22 — Add case tool group (get_case, update_case, write_audit)
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/tools/__init__.py`, `dispute-mcp-server/src/dispute_mcp_server/tools/case_tools.py`, `dispute-mcp-server/tests/test_case_tools.py`
+**What:** Added the first FastMCP tool group. `get_case` propagates `NotFoundError`; `update_case`/`write_audit` reuse `chargeback_contracts.mcp`'s write-side contracts and catch `NotFoundError` internally, returning a structured `McpWriteResponse(status=FAILURE, ...)` instead of raising. Established (and empirically confirmed against the real `fastmcp==3.4.4` package) that `Client.call_tool(...).data` for a Pydantic-model-typed tool return requires **attribute access**, not dict-subscript — a finding carried into every later tool-group task's tests.
+**Why:** Proves the case-management boundary end-to-end and de-risks the calling convention for every remaining tool group.
+
+## 2026-07-22 — Add config and structured tool-call logging
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/config.py`, `dispute-mcp-server/src/dispute_mcp_server/logging.py`, `dispute-mcp-server/tests/test_logging.py`
+**What:** Added environment-backed `Settings`/`load_settings()` and a `log_tool_call` decorator that logs tool name, one relevant identifier, success/failure, and duration — verified to log only the failing exception's type name, never its message text or the full record contents.
+**Why:** Satisfies the "avoid logging sensitive payloads" requirement while still giving every tool call an audit trail.
+
+## 2026-07-22 — Add repository layer with seed-data consistency tests
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/repository.py`, `dispute-mcp-server/tests/test_seed_data_consistency.py`
+**What:** Added `DisputeRepository` (typed lookups over the seeded data, plus the two narrow mutations `update_case_status`/`append_audit_record`) and `NotFoundError`. The repository copies `seed_data.CASES` into its own instance dict rather than aliasing it, so mutations never leak into shared module state or other instances. 8 tests verify every cross-reference in the seed data.
+**Why:** This is the boundary between "static seed data" and "queryable service data" — getting the copy-vs-alias and unknown-vs-empty distinctions right here matters for every tool built on top of it.
+
+## 2026-07-22 — Add deterministic cross-referenced seed data
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/seed_data.py`
+**What:** Added 3 fully cross-referenced mock cases (`CASE-1001`/`1002`/`1003`, covering `goods_not_received`/`duplicate_transaction`/`cancelled_service`) spanning transactions, authorizations, settlements, refunds, customer profiles, prior disputes, refund history, merchant evidence, delivery details, and cancellation details — all internally consistent (amounts/currencies match across case→transaction→authorization→settlement).
+**Why:** Every MCP tool needs real, referenceable data to return; future prompts can rely on these same IDs.
+
+## 2026-07-22 — Teach ruff's isort that workspace packages are first-party
+
+**Files:** `pyproject.toml`, 12 already-existing test files across `contracts/` and `dispute-mcp-server/`
+**What:** Added `[tool.ruff.lint.isort] known-first-party` listing every workspace package. Without it, ruff's I001 rule treated in-repo packages like `chargeback_contracts` as third-party, merging their imports alphabetically with real third-party packages instead of sorting them into their own group — first noticed when Task 2's `models.py` had to reorder its imports to satisfy ruff.
+**Why:** Fixes recurring import-ordering friction proactively before every remaining task in this batch (all of which import `chargeback_contracts`) would otherwise hit the same issue independently.
+
+## 2026-07-22 — Add local response models for dispute-mcp-server read tools
+
+**Files:** `dispute-mcp-server/src/dispute_mcp_server/models.py`
+**What:** Added 12 Pydantic models (`CaseRecord`, `TransactionRecord`, `AuthorizationRecord`, `SettlementRecord`, `RefundOrReversalRecord`, `CustomerProfileRecord`, `PriorDisputeRecord`, `RefundHistoryEntry`, `MerchantEvidenceRecord`, `DeliveryDetailsRecord`, `CancellationDetailsRecord`, `AuditRecord`), reusing `chargeback_contracts.skills.DisputeType` rather than redefining it.
+**Why:** Prompt 2's `chargeback_contracts.mcp` read-side contracts were deliberately minimal pending a real business schema — this prompt is where that schema now needs to exist, package-local rather than added to the shared contract layer.
+
+## 2026-07-22 — Add dispute-mcp-server dependencies (fastmcp, contracts)
+
+**Files:** `dispute-mcp-server/pyproject.toml`, `uv.lock`
+**What:** Added `fastmcp==3.4.4`, `pydantic>=2.13`, and a workspace-local dependency on `contracts`.
+**Why:** These are the exact versions this prompt's FastMCP server is built against.
+
+## 2026-07-22 — Add dispute-mcp-server implementation plan
+
+**Files:** `docs/superpowers/plans/2026-07-22-dispute-mcp-server.md`
+**What:** Task-by-task plan (16 tasks) to implement Prompt 3's FastMCP server via subagent-driven-development.
+**Why:** Break the server build into reviewable, independently-testable units before implementation began.
+
+## 2026-07-22 — Refine dispute-mcp-server contract-reuse decision
+
+**Files:** `docs/superpowers/specs/2026-07-22-dispute-mcp-server-design.md`
+**What:** Decided to reuse `chargeback_contracts.mcp`'s write-side envelope contracts as-is for `update_case`/`write_audit`, but define new local models for every read tool instead of wrapping richer mock data in Prompt 2's deliberately-minimal `GetCaseResponse`/`GetTransactionResponse` placeholders.
+**Why:** Resolve the tension between "reuse existing contracts" and "these specific contracts were deliberately left minimal" before writing the implementation plan.
+
+## 2026-07-22 — Add dispute-mcp-server design spec
+
+**Files:** `docs/superpowers/specs/2026-07-22-dispute-mcp-server-design.md`
+**What:** Recorded real `fastmcp==3.4.4` API research (tool registration via `@mcp.tool`, in-memory testing via `fastmcp.Client`, error propagation as `ToolError`) ahead of planning. Also records that an earlier, mistakenly-sent Prompt 3 (Agent Registry) was withdrawn before any repository changes were made for it.
+**Why:** Ground the implementation plan in verified SDK behavior rather than assumption, per the prompt's own instruction to inspect real APIs first.
+
 ## 2026-07-22 — Add shared contract layer overview to README
 
 **Files:** `README.md`
