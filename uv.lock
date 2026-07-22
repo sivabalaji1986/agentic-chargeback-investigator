@@ -578,6 +578,12 @@ wheels = [
 name = "orchestrator-agent"
 version = "0.1.0"
 source = { editable = "orchestrator-agent" }
+dependencies = [
+    { name = "contracts" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "contracts", editable = "contracts" }]
 
 [[package]]
 name = "packaging"
@@ -820,6 +826,12 @@ wheels = [
 name = "transaction-agent"
 version = "0.1.0"
 source = { editable = "transaction-agent" }
+dependencies = [
+    { name = "contracts" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "contracts", editable = "contracts" }]
 
 [[package]]
 name = "typing-extensions"

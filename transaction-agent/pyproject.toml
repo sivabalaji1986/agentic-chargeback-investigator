@@ -3,7 +3,10 @@ name = "transaction-agent"
 version = "0.1.0"
 description = "Transaction-domain investigation"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = ["contracts"]
+
+[tool.uv.sources]
+contracts = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
