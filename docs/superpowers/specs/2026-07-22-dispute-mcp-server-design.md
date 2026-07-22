@@ -39,23 +39,32 @@ decisions needed to implement it, not a restatement of the prompt.
 
 ### Contract reuse vs. new local models
 
-`chargeback_contracts.mcp` (built in Prompt 2) already defines
-`GetCaseRequest/Response`, `GetTransactionRequest/Response`, and the
-write-side `UpdateCaseStatusRequest`, `CreateAuditEntryRequest`,
-`McpWriteResponse` — these are reused directly for `get_case`,
-`get_transaction`, `update_case`, and `write_audit`. The other 9 tools
-(`get_authorization`, `get_settlement`, `get_refund_or_reversal`,
-`get_customer_profile`, `get_prior_disputes`, `get_refund_history`,
-`get_merchant_evidence` — note: `chargeback_contracts.mcp` has a
-`GetMerchantEvidenceResponse` returning `EvidenceRef` tuples, a different
-shape than this prompt's mock "merchant evidence" record, so this tool
-gets its own local model — `get_delivery_details`, `get_cancellation_details`)
-have no existing shared contract, since Prompt 2 deliberately deferred
-inventing case/transaction/merchant business schemas until this prompt.
-Local, package-owned Pydantic models are added in
-`dispute-mcp-server/src/dispute_mcp_server/models.py` for these — not
-added to `chargeback_contracts`, per the instruction not to duplicate or
-refactor completed work.
+`chargeback_contracts.mcp`'s read-side contracts (`GetCaseResponse`,
+`GetTransactionResponse`, ...) are *deliberately* minimal per Prompt 2's
+own design note — no business schema, because at the time no prompt had
+yet defined one. This prompt is exactly where that schema needs to exist,
+so reusing those minimal response shapes would mean wrapping richer mock
+data in a container that immediately has to be worked around. Decision:
+reuse the write-side contracts fully (`UpdateCaseStatusRequest`,
+`CreateAuditEntryRequest`, `McpWriteResponse` — these are generic
+envelopes that don't need business-specific richness and are a genuine
+fit as-is) for `update_case` and `write_audit`; define new local,
+package-owned Pydantic models in
+`dispute-mcp-server/src/dispute_mcp_server/models.py` for every read
+tool's return type (`get_case`, `get_transaction`, `get_authorization`,
+`get_settlement`, `get_refund_or_reversal`, `get_customer_profile`,
+`get_prior_disputes`, `get_refund_history`, `get_merchant_evidence`,
+`get_delivery_details`, `get_cancellation_details`) — not added to
+`chargeback_contracts`, per the instruction not to duplicate or refactor
+completed work.
+
+Tool *parameters* use flat scalar arguments (`case_id: str`,
+`transaction_id: str`, ...) rather than wrapping inputs in request
+objects — this is FastMCP's idiomatic style (confirmed during research:
+`@mcp.tool` generates its schema straight from the function signature) and
+keeps tool calls natural (flat kwargs, not one nested object), matching
+how the existing `GetCaseRequest`/`GetTransactionRequest` single-field
+shapes would look anyway if unwrapped.
 
 ### Repository shape
 
