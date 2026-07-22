@@ -1,4 +1,4 @@
-.PHONY: install lock format lint typecheck test verify ui-install ui-build clean
+.PHONY: install lock format lint typecheck test mcp-test mcp-run verify ui-install ui-build clean
 
 install:
 	uv sync --all-packages
@@ -17,6 +17,12 @@ typecheck:
 
 test:
 	uv run pytest
+
+mcp-test:
+	uv run pytest dispute-mcp-server/tests -v
+
+mcp-run:
+	uv run --package dispute-mcp-server python -m dispute_mcp_server.main
 
 ui-install:
 	cd investigator-ui && npm install
