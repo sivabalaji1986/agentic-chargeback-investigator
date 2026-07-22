@@ -14,8 +14,11 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Anchored to repo root only (Python's own top-level build lib dirs) --
+# an unanchored "lib/" here would also silently match nested frontend
+# source directories like investigator-ui/src/lib/.
+/lib/
+/lib64/
 parts/
 sdist/
 var/
