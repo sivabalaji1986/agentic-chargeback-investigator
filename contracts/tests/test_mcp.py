@@ -79,3 +79,8 @@ def test_evidence_request_task_rejects_unknown_field() -> None:
             message_to_customer="Please provide delivery proof.",
             unexpected_field="nope",
         )
+
+
+def test_mcp_status_stable_values() -> None:
+    assert McpStatus.SUCCESS.value == "success"
+    assert McpStatus.FAILURE.value == "failure"

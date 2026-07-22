@@ -94,3 +94,9 @@ def test_failed_status_requires_non_blank_summary() -> None:
 def test_rejects_blank_a2a_task_id_when_supplied() -> None:
     with pytest.raises(ValidationError, match="must not be blank"):
         _completed_finding(a2a_task_id="   ")
+
+
+def test_finding_status_stable_values() -> None:
+    assert FindingStatus.COMPLETED.value == "completed"
+    assert FindingStatus.PARTIAL.value == "partial"
+    assert FindingStatus.FAILED.value == "failed"

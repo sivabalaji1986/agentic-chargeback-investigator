@@ -83,3 +83,9 @@ def test_discriminated_components_round_trip_for_approval_preview() -> None:
 def test_rejects_unknown_field() -> None:
     with pytest.raises(ValidationError):
         _valid_envelope(unexpected_field="nope")
+
+
+def test_investigator_action_stable_values() -> None:
+    assert InvestigatorAction.APPROVE_RECOMMENDATION.value == "approve_recommendation"
+    assert InvestigatorAction.REJECT_RECOMMENDATION.value == "reject_recommendation"
+    assert InvestigatorAction.REQUEST_MORE_EVIDENCE.value == "request_more_evidence"

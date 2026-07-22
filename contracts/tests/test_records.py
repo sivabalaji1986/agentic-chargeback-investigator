@@ -115,3 +115,10 @@ def test_rejects_unknown_field() -> None:
             audit_correlation_id="AUD-1",
             unexpected_field="nope",
         )
+
+
+def test_workflow_status_stable_values() -> None:
+    assert WorkflowStatus.IN_PROGRESS.value == "in_progress"
+    assert WorkflowStatus.PARTIAL.value == "partial"
+    assert WorkflowStatus.COMPLETED.value == "completed"
+    assert WorkflowStatus.FAILED.value == "failed"
