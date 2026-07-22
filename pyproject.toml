@@ -72,7 +72,6 @@ explicit_package_bases = true
 # batch — do not remove this comment until the list is empty.
 exclude = [
     "^orchestrator-agent/tests/",
-    "^transaction-agent/tests/",
     "^customer-history-agent/tests/",
     "^merchant-evidence-agent/tests/",
     "^policy-agent/tests/",
